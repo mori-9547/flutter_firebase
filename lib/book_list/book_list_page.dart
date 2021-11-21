@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase/add_book/add_book_page.dart';
 import 'package:flutter_firebase/domain/book.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'book_list_model.dart';
 
@@ -23,9 +24,30 @@ class BookListPage extends StatelessWidget {
 
             final List<Widget> widgets = books
                 .map(
-                  (book) => ListTile(
-                    title: Text(book.title),
-                    subtitle: Text(book.author),
+                  (book) => Slidable(
+                    endActionPane: const ActionPane(
+                      motion: ScrollMotion(),
+                      children: [
+                        SlidableAction(
+                          onPressed: null,
+                          backgroundColor: Colors.black45,
+                          foregroundColor: Colors.white,
+                          icon: Icons.edit,
+                          label: 'Edit',
+                        ),
+                        SlidableAction(
+                          onPressed: null,
+                          backgroundColor: Color(0xFFFE4A49),
+                          foregroundColor: Colors.white,
+                          icon: Icons.delete,
+                          label: 'Delete',
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      title: Text(book.title),
+                      subtitle: Text(book.author),
+                    ),
                   ),
                 )
                 .toList();

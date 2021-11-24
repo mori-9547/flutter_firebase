@@ -28,7 +28,7 @@ class BookListPage extends StatelessWidget {
                 .map(
                   (book) => Slidable(
                     endActionPane: ActionPane(
-                      motion: ScrollMotion(),
+                      motion: const ScrollMotion(),
                       children: [
                         SlidableAction(
                           onPressed: (BuildContext context) async {
@@ -54,7 +54,9 @@ class BookListPage extends StatelessWidget {
                           label: 'Edit',
                         ),
                         SlidableAction(
-                          onPressed: null,
+                          onPressed: (BuildContext context) async {
+                            await showConfirmDialog(context, book, model);
+                          },
                           backgroundColor: Color(0xFFFE4A49),
                           foregroundColor: Colors.white,
                           icon: Icons.delete,
@@ -100,6 +102,42 @@ class BookListPage extends StatelessWidget {
           );
         }), // This trailing comma makes auto-formatting nicer for build methods.
       ),
+    );
+  }
+
+  Future showConfirmDialog(
+    BuildContext context,
+    Book book,
+    BookListModel model,
+  ) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmation of deletion'),
+          content: Text('Do you want to delete the ${book.title}?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () async {
+                await model.delete(book);
+                Navigator.of(context).pop();
+                final snackBar = SnackBar(
+                  backgroundColor: Colors.red,
+                  content: Text('${book.title} Update Sccessfully!'),
+                );
+                model.fetchBlookList();
+                _scaffoldKey.currentState!.showSnackBar(snackBar);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_firebase/domain/book.dart';
 
 class BookListModel extends ChangeNotifier {
-  // final Stream<QuerySnapshot> _booksStream =
-  //     FirebaseFirestore.instance.collection('books').snapshots();
   final _bookCollection = FirebaseFirestore.instance.collection('books');
 
   List<Book>? books;
@@ -17,19 +15,12 @@ class BookListModel extends ChangeNotifier {
       final String id = document.id;
       final String title = data['title'];
       final String author = data['author'];
-      return Book(id, title, author);
+      final String? imgUrl = data['imgUrl'];
+      return Book(id, title, author, imgUrl);
     }).toList();
 
-    // _booksStream.listen((QuerySnapshot snapshot) {
-    // final List<Book> books = snapshot.docs.map((DocumentSnapshot document) {
-    //   Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-    //   final String title = data['title'];
-    //   final String author = data['author'];
-    //   return Book(title, author);
-    // }).toList();
     this.books = books;
     notifyListeners();
-    // });
   }
 
   Future delete(Book book) {

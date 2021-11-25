@@ -65,6 +65,9 @@ class BookListPage extends StatelessWidget {
                       ],
                     ),
                     child: ListTile(
+                      leading: book.imgUrl != null
+                          ? Image.network(book.imgUrl!)
+                          : null,
                       title: Text(book.title),
                       subtitle: Text(book.author),
                     ),

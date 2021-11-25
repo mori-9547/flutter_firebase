@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RegisterModel extends ChangeNotifier {
@@ -7,6 +8,17 @@ class RegisterModel extends ChangeNotifier {
 
   String? email;
   String? password;
+  bool isLoading = false;
+
+  void startLoading() {
+    isLoading = true;
+    notifyListeners();
+  }
+
+  void endLoading() {
+    isLoading = false;
+    notifyListeners();
+  }
 
   void setEmail(String email) {
     this.email = email;
@@ -21,9 +33,19 @@ class RegisterModel extends ChangeNotifier {
   Future signup() async {
     this.email = emailController.text;
     this.password = passwordController.text;
-    // await FirebaseFirestore.instance.collection('books').doc(book.id).update({
-    //   'email': email,
-    //   'password': password,
-    // });
+
+    if (email != null && password != null) {
+      final UserCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email!, password: password!);
+      final user = UserCredential.user;
+      if (user != null) {
+        final uid = user.uid;
+        final doc = FirebaseFirestore.instance.collection('users').doc(uid);
+        await doc.set({
+          'uid': uid,
+          'email': email,
+        });
+      }
+    }
   }
 }

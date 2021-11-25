@@ -13,51 +13,64 @@ class RegisterPage extends StatelessWidget {
         ),
         body: Center(
           child: Consumer<RegisterModel>(builder: (context, model, child) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: model.emailController,
-                    decoration: const InputDecoration(
-                      hintText: 'Email',
-                    ),
-                    onChanged: (text) {
-                      model.setEmail(text);
-                    },
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  TextField(
-                    controller: model.passwordController,
-                    decoration: const InputDecoration(
-                      hintText: 'Password',
-                    ),
-                    onChanged: (text) {
-                      model.setPassword(text);
-                    },
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        try {
-                          await model.signup();
-                          // Navigator.of(context).pop(model.email);
-                        } catch (e) {
-                          final snackBar = SnackBar(
-                            backgroundColor: Colors.red,
-                            content: Text(e.toString()),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        }
+            return Stack(children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: model.emailController,
+                      decoration: const InputDecoration(
+                        hintText: 'Email',
+                      ),
+                      onChanged: (text) {
+                        model.setEmail(text);
                       },
-                      child: const Text('Register'))
-                ],
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    TextField(
+                      controller: model.passwordController,
+                      decoration: const InputDecoration(
+                        hintText: 'Password',
+                      ),
+                      onChanged: (text) {
+                        model.setPassword(text);
+                      },
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            model.startLoading();
+                            await model.signup();
+                            Navigator.of(context).pop();
+                          } catch (e) {
+                            final snackBar = SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text(e.toString()),
+                            );
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          } finally {
+                            model.endLoading();
+                          }
+                        },
+                        child: const Text('Register'))
+                  ],
+                ),
               ),
-            );
+              if (model.isLoading)
+                Container(
+                  color: Colors.black54,
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+            ]);
           }),
         ),
       ),

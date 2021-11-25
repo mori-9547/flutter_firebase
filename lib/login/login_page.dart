@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase/login/login_model.dart';
-import 'package:flutter_firebase/register/register_model.dart';
 import 'package:flutter_firebase/register/register_page.dart';
 import 'package:provider/provider.dart';
 
@@ -15,64 +14,77 @@ class LoginPage extends StatelessWidget {
         ),
         body: Center(
           child: Consumer<LoginModel>(builder: (context, model, child) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: model.emailController,
-                    decoration: const InputDecoration(
-                      hintText: 'Email',
+            return Stack(children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: model.emailController,
+                      decoration: const InputDecoration(
+                        hintText: 'Email',
+                      ),
+                      onChanged: (text) {
+                        model.setEmail(text);
+                      },
                     ),
-                    onChanged: (text) {
-                      model.setEmail(text);
-                    },
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  TextField(
-                    controller: model.passwordController,
-                    decoration: const InputDecoration(
-                      hintText: 'Password',
+                    const SizedBox(
+                      height: 8,
                     ),
-                    onChanged: (text) {
-                      model.setPassword(text);
-                    },
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        await model.login();
-                        // Navigator.of(context).pop(model.email);
-                      } catch (e) {
-                        final snackBar = SnackBar(
-                          backgroundColor: Colors.red,
-                          content: Text(e.toString()),
+                    TextField(
+                      controller: model.passwordController,
+                      decoration: const InputDecoration(
+                        hintText: 'Password',
+                      ),
+                      onChanged: (text) {
+                        model.setPassword(text);
+                      },
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        model.startLoading();
+                        try {
+                          await model.login();
+                          Navigator.of(context).pop();
+                        } catch (e) {
+                          final snackBar = SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text(e.toString()),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        } finally {
+                          model.endLoading();
+                          print('success');
+                        }
+                      },
+                      child: const Text('Login'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RegisterPage(),
+                            fullscreenDialog: true,
+                          ),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
-                    },
-                    child: const Text('Login'),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RegisterPage(),
-                          fullscreenDialog: true,
-                        ),
-                      );
-                    },
-                    child: const Text('Register New User'),
-                  )
-                ],
+                      },
+                      child: const Text('Register New User'),
+                    )
+                  ],
+                ),
               ),
-            );
+              if (model.isLoading)
+                Container(
+                  color: Colors.black54,
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+            ]);
           }),
         ),
       ),
